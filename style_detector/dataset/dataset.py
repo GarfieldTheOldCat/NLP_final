@@ -26,7 +26,7 @@ class StyleDataset(Dataset):
         
         # Filter by language if specified
         if language_filter == 'chinese':
-            self.data = self.data[self.data['language'] == 'cn'].reset_index(drop=True)
+            self.data = self.data[self.data['language'] == 'ch'].reset_index(drop=True)
         elif language_filter == 'english':
             self.data = self.data[self.data['language'] == 'en'].reset_index(drop=True)
 
@@ -97,7 +97,7 @@ def create_data_splits(
     data = pd.read_csv(csv_path)
     
     if language_filter == 'chinese':
-        data = data[data['language'] == 'cn'].reset_index(drop=True)
+        data = data[data['language'] == 'ch'].reset_index(drop=True)
     elif language_filter == 'english':
         data = data[data['language'] == 'en'].reset_index(drop=True)
 

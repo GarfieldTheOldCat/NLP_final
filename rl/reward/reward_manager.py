@@ -3,12 +3,12 @@
 支持测试模式和正式模式的切换
 """
 
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 import torch
 import numpy as np
-from .format import FormatReward
-from .style import StyleRewardModel, MockStyleRewardModel
-from .comet import CometSemanticReward
+from .format_score import FormatReward
+from .style_score import StyleRewardModel, MockStyleRewardModel
+from .comet_score import CometSemanticReward
 
 
 class RewardManager:

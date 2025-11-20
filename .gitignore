@@ -5,3 +5,12 @@ style_detector/notebook
 style_detector/temp
 style_detector/wandb
 style_detector/corpus/temp
+style_detector/models
+
+rl/.ipynb_checkpoints
+rl/model
+rl/output
+rl/reward/__pycache__
+rl/reward/.ipynb_checkpoints
+
+.ipynb_checkpoints

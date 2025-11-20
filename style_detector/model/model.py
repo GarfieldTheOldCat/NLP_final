@@ -52,6 +52,8 @@ class StyleDetector(pl.LightningModule):
         self.val_f1 = F1Score(task="multiclass", num_classes=num_classes, average='macro')
         self.val_precision = Precision(task="multiclass", num_classes=num_classes, average='macro')
         self.val_recall = Recall(task="multiclass", num_classes=num_classes, average='macro')
+
+        self.test_step_outputs = []
         
     def _freeze_bert_layers(self, num_layers: int):
         """Freeze the first num_layers of BERT"""
@@ -141,10 +143,20 @@ class StyleDetector(pl.LightningModule):
         # Calculate predictions
         preds = torch.argmax(logits, dim=1)
         
-        return {'loss': loss, 'preds': preds, 'labels': labels}
+        # Store outputs manually
+        output = {'loss': loss, 'preds': preds, 'labels': labels}
+        self.test_step_outputs.append(output)
+        
+        return output
     
-    def test_epoch_end(self, outputs):
+    def on_test_epoch_end(self):  # Removed 'outputs' argument
         """Calculate test metrics at epoch end"""
+        # Retrieve stored outputs
+        outputs = self.test_step_outputs
+        
+        if not outputs:
+            return
+
         # Gather all predictions and labels
         all_preds = torch.cat([x['preds'] for x in outputs])
         all_labels = torch.cat([x['labels'] for x in outputs])
@@ -152,8 +164,8 @@ class StyleDetector(pl.LightningModule):
         
         # Calculate metrics
         test_loss = all_losses.mean()
-        test_acc = Accuracy(task="multiclass", num_classes=self.hparams.num_classes)(all_preds, all_labels)
-        test_f1 = F1Score(task="multiclass", num_classes=self.hparams.num_classes, average='macro')(all_preds, all_labels)
+        test_acc = Accuracy(task="multiclass", num_classes=self.hparams.num_classes).to(self.device)(all_preds, all_labels)
+        test_f1 = F1Score(task="multiclass", num_classes=self.hparams.num_classes, average='macro').to(self.device)(all_preds, all_labels)
         
         # Log metrics
         self.log('test_loss', test_loss)
@@ -164,6 +176,9 @@ class StyleDetector(pl.LightningModule):
         print(f"Loss: {test_loss:.4f}")
         print(f"Accuracy: {test_acc:.4f}")
         print(f"F1 Score: {test_f1:.4f}")
+        
+        # Clear the list to free memory
+        self.test_step_outputs.clear()
     
     def configure_optimizers(self):
         """Configure optimizers and schedulers"""
